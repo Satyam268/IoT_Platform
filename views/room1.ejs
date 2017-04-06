@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+</head>
+
+<body>
+<% include templates/header.ejs %>
+<select id="boilerIDs">
+    <option>Boiler1</option>
+    <option>Boiler2</option>
+    <option>Boiler3</option>
+</select>
+<h1><%= title %></h1>
+<p>Welcome to <%= name %></p>
+
+<div>
+    <input type="button" id="getTempBtn" value="Get Temperature"/>
+    <label>Temperature is: </label>
+    <input type="text" id="tempID">
+    <br><br><br>
+    <input type="button" id="getProximityBtn" value="Sense Proximity"/>
+    <label>Proximity is: </label>
+    <input type="text" id="proximityID">
+    <br><br><br>
+    <input type="button" id="getTempRangeBtn" value="Get Temperature"/>
+    <label>Start Date:</label>
+    <input type="text" id="startDatetxt" class="datepicker">
+    <label>End Date:</label>
+    <input type="text" id="endDatetxt" class="datepicker">
+    <br>
+    <canvas id="myChart" width="50" height="50" style="visibility:hidden"></canvas>
+</div>
+
+</body>
+
+<script>
+    jQuery(document).ready(function () {
+
+        jQuery("#getTempBtn").click(function () {
+            $.get('room1/getTemp', {data: "boiler1"}, function (data) {
+                $('#tempID').val(data.temperatureValue);
+            });
+        });
+
+        jQuery("#getTempRangeBtn").click(function () {
+            var params = {
+                "to": $('#startDatetxt').val(),
+                "from": $('#endDatetxt').val()
+            };
+            $.get('room1/getTempRange', {data: params}, function (data) {
+                debugger;
+                createChart();
+                //$('#tempID').val(data.temperatureValue);
+            });
+        });
+
+        jQuery("#getProximityBtn").click(function () {
+            $.get('room1/getProximity', {data: "boiler1"}, function (data) {
+                $('#proximityID').val(data.proximityValue);
+            });
+        });
+
+        jQuery(".datepicker").datepicker();
+
+        function createChart() {
+            var ctx = document.getElementById("myChart");
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["Day1", "Day2", "Day3", "Day4", "Day5", "Day6", "Day7"],
+                    datasets: [{
+                        label: 'Temperature trends',
+                        data: [11, 9, 3, 5, 2, 7, 5],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255,99,132,1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            $('#myChart').css("visibility", "visible");
+        }
+    }());
+</script>
+</html>
